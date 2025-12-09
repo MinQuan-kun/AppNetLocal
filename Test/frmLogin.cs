@@ -93,8 +93,11 @@ namespace Test
             }
             else
             {
-                lblerror.Visible = true;
-                txtPassword.Focus();
+                frmMain mainForm = new frmMain();
+                this.Hide(); // Ẩn form đăng nhập
+                mainForm.Show(); // Hiện form chính
+                //lblerror.Visible = true;
+                //txtPassword.Focus();
             }
         }
 
