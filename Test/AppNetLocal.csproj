@@ -102,7 +102,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiClient.cs" />
-    <Compile Include="ApiHelper.cs" />
     <Compile Include="DTOs\LoginResponse.cs" />
     <Compile Include="DTOs\MenuItemDTO.cs" />
     <Compile Include="DTOs\UserDTO.cs" />
