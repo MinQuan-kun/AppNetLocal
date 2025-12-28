@@ -1,7 +1,10 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Test.DTOs;
@@ -100,20 +103,12 @@ namespace Test
 
         private async void Computer_Click(object sender, EventArgs e)
         {
-            // 1. Kiểm tra đăng nhập trước
             if (ApiClient.CurrentUser == null) return;
-
-            // 2. Lấy thông tin máy (KHAI BÁO BIẾN comp Ở ĐÂY)
             Button btn = sender as Button;
-            Computer comp = btn.Tag as Computer; // <--- Biến comp được tạo ra tại đây
+            Computer comp = btn.Tag as Computer;
             int currentUserId = ApiClient.CurrentUser.user_id;
+
             MessageBox.Show($"ID Của Bạn (Local): {currentUserId}\nID Người Đặt (Server): {comp.current_user_id}");
-            // --- DEBUG: Nếu vẫn lỗi, nó sẽ hiện popup này để bạn biết nguyên nhân ---
-            // Nếu comp.current_user_id là null, nghĩa là ApiClient chưa đọc được dữ liệu
-            /* if (comp.status == "dat truoc") {
-                MessageBox.Show($"Debug:\nID Máy: {comp.computer_id}\nTrạng thái: {comp.status}\nNgười đặt (Server): {comp.current_user_id}\nBạn (Local): {currentUserId}");
-            }
-            */
 
             // 1. CHẶN MÁY TRỐNG (Bắt buộc đặt trên web)
             if (comp.status == "trong")
@@ -246,5 +241,26 @@ namespace Test
         private void btnDangNhap_Click(object sender, EventArgs e) { PanelMain.Controls.Clear(); frmLogin loginForm = new frmLogin { TopLevel = false, FormBorderStyle = FormBorderStyle.None }; PanelMain.Controls.Add(loginForm); loginForm.Show(); CenterFormInPanel(loginForm); }
         private void btnDatmay_Click(object sender, EventArgs e) { }
         private void btnNhaphang_Click(object sender, EventArgs e) { PanelMain.Controls.Clear(); }
+
+        public static async Task<List<UserDTO>> GetUsersAsync()
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(Token))
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Token);
+
+                // Giả sử API lấy list user là GET /users
+                var response = await client.GetAsync($"{BaseUrl}/users");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    string json = await response.Content.ReadAsStringAsync();
+                    var settings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
+                    return JsonConvert.DeserializeObject<List<UserDTO>>(json, settings);
+                }
+            }
+            catch { }
+            return new List<UserDTO>(); // Trả về list rỗng nếu lỗi
+        }
     }
 }

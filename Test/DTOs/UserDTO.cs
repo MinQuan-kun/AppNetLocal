@@ -5,7 +5,7 @@ namespace Test.DTOs
 {
     public class UserDTO
     {
-        [JsonProperty("user_id")]
+        [JsonProperty("id")]
         public int user_id { get; set; }
 
         [JsonProperty("user_name")]

@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
+using System.Windows.Forms;
 using Test.DTOs;
 
 namespace Test
@@ -59,6 +60,11 @@ namespace Test
             var response = await client.PostAsync($"{BaseUrl}{endpoint}", content);
             var responseString = await response.Content.ReadAsStringAsync();
 
+            if (endpoint.Contains("login"))
+            {
+                MessageBox.Show("Dữ liệu gốc Server trả về:\n" + responseString);
+            }
+
             if (!response.IsSuccessStatusCode)
             {
                 try
@@ -87,6 +93,7 @@ namespace Test
                 if (response.IsSuccessStatusCode)
                 {
                     string json = await response.Content.ReadAsStringAsync();
+
                     var settings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
                     return JsonConvert.DeserializeObject<List<Computer>>(json, settings);
                 }
