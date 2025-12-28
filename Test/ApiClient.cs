@@ -9,28 +9,40 @@ using Test.DTOs;
 
 namespace Test
 {
-    // --- Model bổ sung ---
+    // Model Máy Tính (Đã thêm JsonProperty)
     public class Computer
     {
+        [JsonProperty("computer_id")]
         public int computer_id { get; set; }
+
+        [JsonProperty("computer_name")]
         public string computer_name { get; set; }
+
+        [JsonProperty("x")]
         public int x { get; set; }
+
+        [JsonProperty("y")]
         public int y { get; set; }
+
+        [JsonProperty("status")]
         public string status { get; set; }
+
+        [JsonProperty("current_user_id")]
         public int? current_user_id { get; set; }
     }
 
     public class ApiResponse
     {
+        [JsonProperty("message")]
         public string message { get; set; }
+
+        [JsonProperty("new_balance")]
         public int? new_balance { get; set; }
     }
 
-    // --- ApiClient chuẩn ---
-    public static class ApiClient // Tên class phải là ApiClient
+    public static class ApiClient
     {
-        // URL Server Render
-        public static string BaseUrl = "https://cyberops-api.onrender.com/api";
+        public static string BaseUrl = "https://internet-coffee-manager.onrender.com/api";
         private static readonly HttpClient client = new HttpClient();
 
         public static string Token { get; set; } = "";
@@ -59,6 +71,7 @@ namespace Test
                     throw new Exception($"Lỗi {response.StatusCode}: {responseString}");
                 }
             }
+
             if (typeof(T) == typeof(object)) return default(T);
             return JsonConvert.DeserializeObject<T>(responseString);
         }
@@ -74,14 +87,14 @@ namespace Test
                 if (response.IsSuccessStatusCode)
                 {
                     string json = await response.Content.ReadAsStringAsync();
-                    return JsonConvert.DeserializeObject<List<Computer>>(json);
+                    var settings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
+                    return JsonConvert.DeserializeObject<List<Computer>>(json, settings);
                 }
             }
             catch { }
             return new List<Computer>();
         }
 
-        // Giữ lại hàm GetMenu cho bạn
         public static async Task<List<MenuItemDTO>> GetMenu()
         {
             try

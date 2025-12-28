@@ -1,15 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Test.DTOs;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox;
 
 namespace Test
 {
@@ -37,21 +32,19 @@ namespace Test
         {
             timer1.Enabled = true;
             UpdateLoginState();
-
-            // --- SỬA 1: Phải gọi hàm này máy mới hiện ra ---
-            await LoadComputerMap();
-
+            await LoadComputerMap(); // Load map ngay
             SetRoundedCorners(30);
         }
 
         private async Task LoadComputerMap()
         {
-            // Kiểm tra Token để tránh lỗi 401 khi chưa đăng nhập
             if (string.IsNullOrEmpty(ApiClient.Token)) return;
 
             try
             {
                 var computers = await ApiClient.GetComputersAsync();
+
+                if (pnlComputers == null) InitializeComputerPanel();
                 pnlComputers.Controls.Clear();
 
                 int buttonSize = 60;
@@ -63,7 +56,6 @@ namespace Test
                     btnComp.Text = $"{comp.computer_name}\n({comp.status})";
                     btnComp.Size = new Size(buttonSize, buttonSize);
 
-                    // Web: x=row, y=col -> Winform: Top=x, Left=y
                     btnComp.Left = (comp.y - 1) * (buttonSize + gap) + gap;
                     btnComp.Top = (comp.x - 1) * (buttonSize + gap) + gap;
 
@@ -72,80 +64,119 @@ namespace Test
                     btnComp.Font = new Font("Arial", 8, FontStyle.Bold);
                     btnComp.Click += Computer_Click;
 
+                    // --- MÀU SẮC THEO YÊU CẦU ---
                     switch (comp.status)
                     {
-                        case "trong": btnComp.BackColor = Color.ForestGreen; btnComp.ForeColor = Color.White; break;
-                        case "co nguoi": btnComp.BackColor = Color.Firebrick; btnComp.ForeColor = Color.White; break;
-                        case "dat truoc": btnComp.BackColor = Color.DarkOrange; btnComp.ForeColor = Color.White; break;
-                        default: btnComp.BackColor = Color.DimGray; btnComp.Enabled = false; break;
+                        case "trong":
+                            btnComp.BackColor = Color.ForestGreen;
+                            btnComp.ForeColor = Color.White;
+                            break;
+                        case "co nguoi":
+                            btnComp.BackColor = Color.Firebrick;
+                            btnComp.ForeColor = Color.White;
+                            break;
+                        case "dat truoc": // Đổi thành MÀU VÀNG
+                            btnComp.BackColor = Color.Gold;
+                            btnComp.ForeColor = Color.Black; // Chữ đen cho dễ đọc trên nền vàng
+                            break;
+                        default:
+                            btnComp.BackColor = Color.DimGray;
+                            btnComp.Enabled = false;
+                            break;
                     }
 
-                    // Highlight máy của mình
+                    // Highlight máy của mình (Viền đỏ đậm)
                     if (ApiClient.CurrentUser != null && comp.current_user_id == ApiClient.CurrentUser.user_id)
                     {
-                        btnComp.FlatAppearance.BorderColor = Color.Yellow;
+                        btnComp.FlatAppearance.BorderColor = Color.Red;
                         btnComp.FlatAppearance.BorderSize = 3;
-                        btnComp.Text += "\n(Bạn)";
+                        btnComp.Text += "\n(Của Bạn)";
                     }
-
                     pnlComputers.Controls.Add(btnComp);
                 }
             }
-            catch (Exception ex)
-            {
-                // Bỏ qua lỗi kết nối ngầm
-            }
+            catch (Exception ex) { }
         }
 
         private async void Computer_Click(object sender, EventArgs e)
         {
+            // 1. Kiểm tra đăng nhập trước
             if (ApiClient.CurrentUser == null) return;
 
+            // 2. Lấy thông tin máy (KHAI BÁO BIẾN comp Ở ĐÂY)
             Button btn = sender as Button;
-            Computer comp = btn.Tag as Computer;
+            Computer comp = btn.Tag as Computer; // <--- Biến comp được tạo ra tại đây
             int currentUserId = ApiClient.CurrentUser.user_id;
+            MessageBox.Show($"ID Của Bạn (Local): {currentUserId}\nID Người Đặt (Server): {comp.current_user_id}");
+            // --- DEBUG: Nếu vẫn lỗi, nó sẽ hiện popup này để bạn biết nguyên nhân ---
+            // Nếu comp.current_user_id là null, nghĩa là ApiClient chưa đọc được dữ liệu
+            /* if (comp.status == "dat truoc") {
+                MessageBox.Show($"Debug:\nID Máy: {comp.computer_id}\nTrạng thái: {comp.status}\nNgười đặt (Server): {comp.current_user_id}\nBạn (Local): {currentUserId}");
+            }
+            */
 
+            // 1. CHẶN MÁY TRỐNG (Bắt buộc đặt trên web)
+            if (comp.status == "trong")
+            {
+                MessageBox.Show("Bạn phải đặt trước máy trên Website mới được vào chơi!",
+                    "Yêu cầu", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            // 2. CHẶN MÁY ĐANG CÓ NGƯỜI CHƠI
             if (comp.status == "co nguoi")
             {
                 MessageBox.Show("Máy này đang có người chơi!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
+
+            // 3. CHẶN MÁY NGƯỜI KHÁC ĐẶT
+            // Lưu ý: So sánh int? với int
             if (comp.status == "dat truoc" && comp.current_user_id != currentUserId)
             {
                 MessageBox.Show("Máy này đã được người khác đặt trước!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
-            string msg = comp.status == "dat truoc"
-                ? $"Máy {comp.computer_name} đã được bạn đặt cọc.\nBạn muốn vào chơi và nhận hoàn tiền cọc không?"
-                : $"Bạn có muốn bắt đầu chơi tại máy {comp.computer_name}?";
-
-            if (MessageBox.Show(msg, "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            // 4. XỬ LÝ VÀO MÁY CỦA MÌNH
+            if (comp.status == "dat truoc" && comp.current_user_id == currentUserId)
             {
-                try
+                string msg = $"Chào mừng! Máy {comp.computer_name} là của bạn.\nXác nhận vào chơi? (Tiền cọc sẽ được hoàn lại).";
+
+                if (MessageBox.Show(msg, "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                 {
-                    // --- SỬA 2: Đổi tên thành computer_id và user_id (có dấu gạch dưới) ---
-                    var requestData = new { computer_id = comp.computer_id, user_id = currentUserId };
-
-                    var result = await ApiClient.PostAsync<ApiResponse>("/computers/start-session", requestData);
-
-                    MessageBox.Show(result.message, "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                    if (result.new_balance.HasValue)
+                    try
                     {
-                        ApiClient.CurrentUser.balance = result.new_balance.Value;
-                        UpdateLoginState();
+                        // Gửi cả 2 kiểu tên biến để chắc chắn Server nhận được
+                        var requestData = new
+                        {
+                            computer_id = comp.computer_id,
+                            computerId = comp.computer_id,
+
+                            user_id = currentUserId,
+                            userId = currentUserId
+                        };
+
+                        var result = await ApiClient.PostAsync<ApiResponse>("/computers/start-session", requestData);
+
+                        MessageBox.Show(result.message, "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                        if (result.new_balance.HasValue)
+                        {
+                            ApiClient.CurrentUser.balance = result.new_balance.Value;
+                            UpdateLoginState();
+                        }
+                        await LoadComputerMap();
                     }
-                    await LoadComputerMap();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Lỗi: " + ex.Message);
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Lỗi: " + ex.Message);
+                    }
                 }
             }
         }
 
-        // --- Giữ nguyên các hàm thiết kế giao diện ---
+        // --- Các hàm phụ trợ giữ nguyên từ code cũ của bạn ---
         private void InitializeComputerPanel()
         {
             if (pnlComputers != null) this.Controls.Remove(pnlComputers);
@@ -177,23 +208,20 @@ namespace Test
 
         private async void btnDangxuat_Click(object sender, EventArgs e)
         {
-            DialogResult dialogResult = MessageBox.Show("Bạn có chắc chắn muốn đăng xuất?", "Thông báo", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-            if (dialogResult == DialogResult.Yes)
+            if (MessageBox.Show("Đăng xuất?", "Xác nhận", MessageBoxButtons.YesNo) == DialogResult.Yes)
             {
                 try { await ApiClient.PostAsync<object>("/auth/logout", new { }); } catch { }
                 ApiClient.Token = null; ApiClient.CurrentUser = null; infor = "Bạn chưa đăng nhập!";
                 if (pnlComputers != null) pnlComputers.Visible = false;
-
                 PanelMain.Controls.Clear();
                 frmLogin loginForm = new frmLogin { TopLevel = false, FormBorderStyle = FormBorderStyle.None };
                 loginForm.LoginSuccess += LoginForm_LoginSuccess;
-                PanelMain.Controls.Add(loginForm);
-                loginForm.Show(); CenterFormInPanel(loginForm);
+                PanelMain.Controls.Add(loginForm); loginForm.Show(); CenterFormInPanel(loginForm);
                 UpdateLoginState();
             }
         }
 
-        // --- Các hàm phụ trợ khác giữ nguyên ---
+        // Các hàm giao diện khác giữ nguyên...
         private void SetRoundedCorners(int radius)
         {
             radius = Math.Min(radius, Math.Min(this.Width / 2, this.Height / 2));
