@@ -10,7 +10,7 @@ using Test.DTOs;
 
 namespace Test
 {
-    // Model Máy Tính (Đã thêm JsonProperty)
+    // Model Máy Tính
     public class Computer
     {
         [JsonProperty("computer_id")]
@@ -60,10 +60,7 @@ namespace Test
             var response = await client.PostAsync($"{BaseUrl}{endpoint}", content);
             var responseString = await response.Content.ReadAsStringAsync();
 
-            if (endpoint.Contains("login"))
-            {
-                MessageBox.Show("Dữ liệu gốc Server trả về:\n" + responseString);
-            }
+            // --- ĐÃ XÓA PHẦN CHECK DỮ LIỆU GỐC Ở ĐÂY ---
 
             if (!response.IsSuccessStatusCode)
             {
@@ -100,20 +97,6 @@ namespace Test
             }
             catch { }
             return new List<Computer>();
-        }
-
-        public static async Task<List<MenuItemDTO>> GetMenu()
-        {
-            try
-            {
-                var response = await client.GetAsync($"{BaseUrl}/menu");
-                if (response.IsSuccessStatusCode)
-                {
-                    return JsonConvert.DeserializeObject<List<MenuItemDTO>>(await response.Content.ReadAsStringAsync());
-                }
-            }
-            catch { }
-            return new List<MenuItemDTO>();
         }
     }
 }

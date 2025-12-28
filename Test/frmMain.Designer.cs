@@ -30,13 +30,12 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmMain));
-            this.btnChucnang = new System.Windows.Forms.Button();
-            this.btnDanhmuc = new System.Windows.Forms.Button();
             this.toolStrip2 = new System.Windows.Forms.ToolStrip();
             this.txtDate = new System.Windows.Forms.ToolStripLabel();
             this.lblInfor = new System.Windows.Forms.ToolStripLabel();
-            this.btnReset = new System.Windows.Forms.Button();
+            this.Logout = new System.Windows.Forms.ToolStripButton();
             this.panelhethong = new System.Windows.Forms.Panel();
+            this.pictureBox4 = new System.Windows.Forms.PictureBox();
             this.btnClose = new Guna.UI2.WinForms.Guna2Button();
             this.guna2Elipse1 = new Guna.UI2.WinForms.Guna2Elipse(this.components);
             this.PanelMain = new System.Windows.Forms.Panel();
@@ -44,61 +43,21 @@
             this.btnHethong = new System.Windows.Forms.Button();
             this.panelLogo = new System.Windows.Forms.Panel();
             this.label2 = new System.Windows.Forms.Label();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.subpanelHethong = new System.Windows.Forms.Panel();
             this.btnThoat = new System.Windows.Forms.Button();
             this.btnDangxuat = new System.Windows.Forms.Button();
             this.subpanelChucnang = new System.Windows.Forms.Panel();
             this.subpanelDanhmuc = new System.Windows.Forms.Panel();
-            this.btnMenu = new System.Windows.Forms.Button();
-            this.btnHoadon = new System.Windows.Forms.Button();
-            this.btnTaikhoan = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.Logout = new System.Windows.Forms.ToolStripButton();
-            this.pictureBox4 = new System.Windows.Forms.PictureBox();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
-            this.SelectComputer = new System.Windows.Forms.Button();
             this.toolStrip2.SuspendLayout();
             this.panelhethong.SuspendLayout();
-            this.panelLogo.SuspendLayout();
-            this.subpanelHethong.SuspendLayout();
-            this.subpanelChucnang.SuspendLayout();
-            this.subpanelDanhmuc.SuspendLayout();
-            this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).BeginInit();
+            this.panelLogo.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            this.subpanelHethong.SuspendLayout();
+            this.panel1.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // btnChucnang
-            // 
-            this.btnChucnang.BackColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.btnChucnang.Dock = System.Windows.Forms.DockStyle.Top;
-            this.btnChucnang.FlatAppearance.BorderSize = 0;
-            this.btnChucnang.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnChucnang.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.btnChucnang.Location = new System.Drawing.Point(0, 401);
-            this.btnChucnang.Name = "btnChucnang";
-            this.btnChucnang.Size = new System.Drawing.Size(225, 48);
-            this.btnChucnang.TabIndex = 6;
-            this.btnChucnang.Text = "Chức năng";
-            this.btnChucnang.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnChucnang.UseVisualStyleBackColor = false;
-            this.btnChucnang.Click += new System.EventHandler(this.btnChucnang_Click);
-            // 
-            // btnDanhmuc
-            // 
-            this.btnDanhmuc.BackColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.btnDanhmuc.Dock = System.Windows.Forms.DockStyle.Top;
-            this.btnDanhmuc.FlatAppearance.BorderSize = 0;
-            this.btnDanhmuc.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnDanhmuc.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.btnDanhmuc.Location = new System.Drawing.Point(0, 226);
-            this.btnDanhmuc.Name = "btnDanhmuc";
-            this.btnDanhmuc.Size = new System.Drawing.Size(225, 48);
-            this.btnDanhmuc.TabIndex = 3;
-            this.btnDanhmuc.Text = "Danh mục";
-            this.btnDanhmuc.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnDanhmuc.UseVisualStyleBackColor = false;
-            this.btnDanhmuc.Click += new System.EventHandler(this.btnDanhmuc_Click);
             // 
             // toolStrip2
             // 
@@ -130,21 +89,15 @@
             this.lblInfor.Size = new System.Drawing.Size(149, 24);
             this.lblInfor.Text = "Bạn chưa đăng nhập!";
             // 
-            // btnReset
+            // Logout
             // 
-            this.btnReset.BackColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.btnReset.Dock = System.Windows.Forms.DockStyle.Top;
-            this.btnReset.FlatAppearance.BorderSize = 0;
-            this.btnReset.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnReset.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.btnReset.Location = new System.Drawing.Point(0, 0);
-            this.btnReset.Name = "btnReset";
-            this.btnReset.Padding = new System.Windows.Forms.Padding(35, 0, 0, 0);
-            this.btnReset.Size = new System.Drawing.Size(225, 43);
-            this.btnReset.TabIndex = 15;
-            this.btnReset.Text = "Reset mật khẩu";
-            this.btnReset.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnReset.UseVisualStyleBackColor = false;
+            this.Logout.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.Logout.Image = ((System.Drawing.Image)(resources.GetObject("Logout.Image")));
+            this.Logout.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.Logout.Name = "Logout";
+            this.Logout.Size = new System.Drawing.Size(29, 24);
+            this.Logout.Text = "Đăng xuất";
+            this.Logout.Click += new System.EventHandler(this.btnDangxuat_Click);
             // 
             // panelhethong
             // 
@@ -158,6 +111,17 @@
             this.panelhethong.Name = "panelhethong";
             this.panelhethong.Size = new System.Drawing.Size(804, 36);
             this.panelhethong.TabIndex = 16;
+            // 
+            // pictureBox4
+            // 
+            this.pictureBox4.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox4.Image")));
+            this.pictureBox4.Location = new System.Drawing.Point(-21, -23);
+            this.pictureBox4.Margin = new System.Windows.Forms.Padding(4, 7, 4, 7);
+            this.pictureBox4.Name = "pictureBox4";
+            this.pictureBox4.Size = new System.Drawing.Size(309, 350);
+            this.pictureBox4.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pictureBox4.TabIndex = 9;
+            this.pictureBox4.TabStop = false;
             // 
             // btnClose
             // 
@@ -229,6 +193,18 @@
             this.label2.TabIndex = 2;
             this.label2.Text = "Hệ thống net";
             // 
+            // pictureBox1
+            // 
+            this.pictureBox1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
+            this.pictureBox1.Location = new System.Drawing.Point(0, 0);
+            this.pictureBox1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(225, 100);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pictureBox1.TabIndex = 1;
+            this.pictureBox1.TabStop = false;
+            // 
             // subpanelHethong
             // 
             this.subpanelHethong.Controls.Add(this.btnThoat);
@@ -276,10 +252,8 @@
             // 
             // subpanelChucnang
             // 
-            this.subpanelChucnang.Controls.Add(this.SelectComputer);
-            this.subpanelChucnang.Controls.Add(this.btnReset);
             this.subpanelChucnang.Dock = System.Windows.Forms.DockStyle.Top;
-            this.subpanelChucnang.Location = new System.Drawing.Point(0, 449);
+            this.subpanelChucnang.Location = new System.Drawing.Point(0, 353);
             this.subpanelChucnang.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.subpanelChucnang.Name = "subpanelChucnang";
             this.subpanelChucnang.Size = new System.Drawing.Size(225, 401);
@@ -287,72 +261,19 @@
             // 
             // subpanelDanhmuc
             // 
-            this.subpanelDanhmuc.Controls.Add(this.btnMenu);
-            this.subpanelDanhmuc.Controls.Add(this.btnHoadon);
-            this.subpanelDanhmuc.Controls.Add(this.btnTaikhoan);
             this.subpanelDanhmuc.Dock = System.Windows.Forms.DockStyle.Top;
-            this.subpanelDanhmuc.Location = new System.Drawing.Point(0, 274);
+            this.subpanelDanhmuc.Location = new System.Drawing.Point(0, 226);
             this.subpanelDanhmuc.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.subpanelDanhmuc.Name = "subpanelDanhmuc";
             this.subpanelDanhmuc.Size = new System.Drawing.Size(225, 127);
             this.subpanelDanhmuc.TabIndex = 4;
-            // 
-            // btnMenu
-            // 
-            this.btnMenu.BackColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.btnMenu.Dock = System.Windows.Forms.DockStyle.Top;
-            this.btnMenu.FlatAppearance.BorderSize = 0;
-            this.btnMenu.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnMenu.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.btnMenu.Location = new System.Drawing.Point(0, 80);
-            this.btnMenu.Name = "btnMenu";
-            this.btnMenu.Padding = new System.Windows.Forms.Padding(35, 0, 0, 0);
-            this.btnMenu.Size = new System.Drawing.Size(225, 40);
-            this.btnMenu.TabIndex = 5;
-            this.btnMenu.Text = "Menu";
-            this.btnMenu.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnMenu.UseVisualStyleBackColor = false;
-            // 
-            // btnHoadon
-            // 
-            this.btnHoadon.BackColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.btnHoadon.Dock = System.Windows.Forms.DockStyle.Top;
-            this.btnHoadon.FlatAppearance.BorderSize = 0;
-            this.btnHoadon.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnHoadon.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.btnHoadon.Location = new System.Drawing.Point(0, 40);
-            this.btnHoadon.Name = "btnHoadon";
-            this.btnHoadon.Padding = new System.Windows.Forms.Padding(35, 0, 0, 0);
-            this.btnHoadon.Size = new System.Drawing.Size(225, 40);
-            this.btnHoadon.TabIndex = 3;
-            this.btnHoadon.Text = "Hóa đơn";
-            this.btnHoadon.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnHoadon.UseVisualStyleBackColor = false;
-            // 
-            // btnTaikhoan
-            // 
-            this.btnTaikhoan.BackColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.btnTaikhoan.Dock = System.Windows.Forms.DockStyle.Top;
-            this.btnTaikhoan.FlatAppearance.BorderSize = 0;
-            this.btnTaikhoan.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnTaikhoan.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.btnTaikhoan.Location = new System.Drawing.Point(0, 0);
-            this.btnTaikhoan.Name = "btnTaikhoan";
-            this.btnTaikhoan.Padding = new System.Windows.Forms.Padding(35, 0, 0, 0);
-            this.btnTaikhoan.Size = new System.Drawing.Size(225, 40);
-            this.btnTaikhoan.TabIndex = 0;
-            this.btnTaikhoan.Text = "Tài khoản";
-            this.btnTaikhoan.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnTaikhoan.UseVisualStyleBackColor = false;
             // 
             // panel1
             // 
             this.panel1.AutoScroll = true;
             this.panel1.BackColor = System.Drawing.SystemColors.ActiveCaptionText;
             this.panel1.Controls.Add(this.subpanelChucnang);
-            this.panel1.Controls.Add(this.btnChucnang);
             this.panel1.Controls.Add(this.subpanelDanhmuc);
-            this.panel1.Controls.Add(this.btnDanhmuc);
             this.panel1.Controls.Add(this.subpanelHethong);
             this.panel1.Controls.Add(this.btnHethong);
             this.panel1.Controls.Add(this.panelLogo);
@@ -362,55 +283,6 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(246, 700);
             this.panel1.TabIndex = 15;
-            // 
-            // Logout
-            // 
-            this.Logout.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.Logout.Image = ((System.Drawing.Image)(resources.GetObject("Logout.Image")));
-            this.Logout.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.Logout.Name = "Logout";
-            this.Logout.Size = new System.Drawing.Size(29, 24);
-            this.Logout.Text = "Đăng xuất";
-            this.Logout.Click += new System.EventHandler(this.btnDangxuat_Click);
-            // 
-            // pictureBox4
-            // 
-            this.pictureBox4.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox4.Image")));
-            this.pictureBox4.Location = new System.Drawing.Point(-21, -23);
-            this.pictureBox4.Margin = new System.Windows.Forms.Padding(4, 7, 4, 7);
-            this.pictureBox4.Name = "pictureBox4";
-            this.pictureBox4.Size = new System.Drawing.Size(309, 350);
-            this.pictureBox4.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pictureBox4.TabIndex = 9;
-            this.pictureBox4.TabStop = false;
-            // 
-            // pictureBox1
-            // 
-            this.pictureBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
-            this.pictureBox1.Location = new System.Drawing.Point(0, 0);
-            this.pictureBox1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(225, 100);
-            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pictureBox1.TabIndex = 1;
-            this.pictureBox1.TabStop = false;
-            // 
-            // SelectComputer
-            // 
-            this.SelectComputer.BackColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.SelectComputer.Dock = System.Windows.Forms.DockStyle.Top;
-            this.SelectComputer.FlatAppearance.BorderSize = 0;
-            this.SelectComputer.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.SelectComputer.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.SelectComputer.Location = new System.Drawing.Point(0, 43);
-            this.SelectComputer.Name = "SelectComputer";
-            this.SelectComputer.Padding = new System.Windows.Forms.Padding(35, 0, 0, 0);
-            this.SelectComputer.Size = new System.Drawing.Size(225, 43);
-            this.SelectComputer.TabIndex = 16;
-            this.SelectComputer.Text = "Chọn máy";
-            this.SelectComputer.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.SelectComputer.UseVisualStyleBackColor = false;
             // 
             // frmMain
             // 
@@ -434,26 +306,21 @@
             this.toolStrip2.PerformLayout();
             this.panelhethong.ResumeLayout(false);
             this.panelhethong.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).EndInit();
             this.panelLogo.ResumeLayout(false);
             this.panelLogo.PerformLayout();
-            this.subpanelHethong.ResumeLayout(false);
-            this.subpanelChucnang.ResumeLayout(false);
-            this.subpanelDanhmuc.ResumeLayout(false);
-            this.panel1.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            this.subpanelHethong.ResumeLayout(false);
+            this.panel1.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
 
         #endregion
-        private System.Windows.Forms.Button btnChucnang;
-        private System.Windows.Forms.Button btnDanhmuc;
         private System.Windows.Forms.ToolStrip toolStrip2;
         private System.Windows.Forms.ToolStripLabel txtDate;
         private System.Windows.Forms.ToolStripLabel lblInfor;
         private System.Windows.Forms.ToolStripButton Logout;
-        private System.Windows.Forms.Button btnReset;
         private System.Windows.Forms.Panel panelhethong;
         private System.Windows.Forms.PictureBox pictureBox4;
         private Guna.UI2.WinForms.Guna2Button btnClose;
@@ -469,10 +336,6 @@
         private System.Windows.Forms.Button btnDangxuat;
         private System.Windows.Forms.Panel subpanelChucnang;
         private System.Windows.Forms.Panel subpanelDanhmuc;
-        private System.Windows.Forms.Button btnMenu;
-        private System.Windows.Forms.Button btnHoadon;
-        private System.Windows.Forms.Button btnTaikhoan;
         private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.Button SelectComputer;
     }
 }

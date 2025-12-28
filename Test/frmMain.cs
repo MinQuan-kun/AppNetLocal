@@ -108,9 +108,7 @@ namespace Test
             Computer comp = btn.Tag as Computer;
             int currentUserId = ApiClient.CurrentUser.user_id;
 
-            MessageBox.Show($"ID Của Bạn (Local): {currentUserId}\nID Người Đặt (Server): {comp.current_user_id}");
-
-            // 1. CHẶN MÁY TRỐNG (Bắt buộc đặt trên web)
+            // 1. CHẶN MÁY TRỐNG
             if (comp.status == "trong")
             {
                 MessageBox.Show("Bạn phải đặt trước máy trên Website mới được vào chơi!",
@@ -126,7 +124,6 @@ namespace Test
             }
 
             // 3. CHẶN MÁY NGƯỜI KHÁC ĐẶT
-            // Lưu ý: So sánh int? với int
             if (comp.status == "dat truoc" && comp.current_user_id != currentUserId)
             {
                 MessageBox.Show("Máy này đã được người khác đặt trước!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -191,13 +188,11 @@ namespace Test
                 lblInfor.Text = $"Xin chào: {ApiClient.CurrentUser.user_name} | Số dư: {ApiClient.CurrentUser.balance:N0} đ";
                 btnDangxuat.Enabled = true; Logout.Enabled = true;
                 bool isManager = (ApiClient.CurrentUser.role_id == 1 || ApiClient.CurrentUser.role_id == 2);
-                btnChucnang.Enabled = isManager; btnDanhmuc.Enabled = isManager;
             }
             else
             {
                 lblInfor.Text = "Bạn chưa đăng nhập!";
                 btnDangxuat.Enabled = false; Logout.Enabled = false;
-                btnChucnang.Enabled = false; btnDanhmuc.Enabled = false;
             }
         }
 
@@ -232,35 +227,10 @@ namespace Test
         private void hideSubMenu() { if (subpanelHethong.Visible) subpanelHethong.Visible = false; if (subpanelDanhmuc.Visible) subpanelDanhmuc.Visible = false; if (subpanelChucnang.Visible) subpanelChucnang.Visible = false; }
         private void showSubMenu(Panel subMenu) { if (!subMenu.Visible) { hideSubMenu(); subMenu.Visible = true; } else { subMenu.Visible = false; } }
         private void btnHethong_Click(object sender, EventArgs e) { showSubMenu(subpanelHethong); }
-        private void btnDanhmuc_Click(object sender, EventArgs e) { showSubMenu(subpanelDanhmuc); }
-        private void btnChucnang_Click(object sender, EventArgs e) { showSubMenu(subpanelChucnang); }
         private void LoginForm_LoginSuccess(object sender, string username) { infor = $"Đăng nhập thành công: {username}"; UpdateLoginState(); PanelMain.Controls.Clear(); if (pnlComputers != null) pnlComputers.Visible = true; LoadComputerMap(); }
         private void btnClose_Click(object sender, EventArgs e) { if (MessageBox.Show("Thoát?", "Xác nhận", MessageBoxButtons.YesNo) == DialogResult.Yes) Application.Exit(); }
         private void CenterFormInPanel(Form form) { int x = (PanelMain.Width - form.Width) / 2; int y = (PanelMain.Height - form.Height) / 2; form.Location = new Point(x, y); }
         private void btnThoat_Click(object sender, EventArgs e) { if (MessageBox.Show("Thoát?", "Xác nhận", MessageBoxButtons.YesNo) == DialogResult.Yes) Application.Exit(); }
-        private void btnDangNhap_Click(object sender, EventArgs e) { PanelMain.Controls.Clear(); frmLogin loginForm = new frmLogin { TopLevel = false, FormBorderStyle = FormBorderStyle.None }; PanelMain.Controls.Add(loginForm); loginForm.Show(); CenterFormInPanel(loginForm); }
-        private void btnDatmay_Click(object sender, EventArgs e) { }
-        private void btnNhaphang_Click(object sender, EventArgs e) { PanelMain.Controls.Clear(); }
 
-        public static async Task<List<UserDTO>> GetUsersAsync()
-        {
-            try
-            {
-                if (!string.IsNullOrEmpty(Token))
-                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Token);
-
-                // Giả sử API lấy list user là GET /users
-                var response = await client.GetAsync($"{BaseUrl}/users");
-
-                if (response.IsSuccessStatusCode)
-                {
-                    string json = await response.Content.ReadAsStringAsync();
-                    var settings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore };
-                    return JsonConvert.DeserializeObject<List<UserDTO>>(json, settings);
-                }
-            }
-            catch { }
-            return new List<UserDTO>(); // Trả về list rỗng nếu lỗi
-        }
     }
 }
