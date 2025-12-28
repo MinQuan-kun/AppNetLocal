@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,6 +14,9 @@ namespace Test
 {
     public partial class frmMain : Form
     {
+        private Panel pnlComputers;
+
+
         public static string infor = "Bạn chưa đăng nhập!";
         public frmMain()
         {
@@ -26,6 +30,8 @@ namespace Test
             customizeDesign();
             infor = _infor;
             lblInfor.Text = infor;
+
+            InitializeComputerPanel();
         }
 
         private void frmMain_Load(object sender, EventArgs e)
@@ -33,8 +39,19 @@ namespace Test
             timer1.Enabled = true;
             UpdateLoginState();
             btnMenu.PerformClick();
+            SetRoundedCorners(30);
         }
-
+        private void SetRoundedCorners(int radius)
+        {
+            radius = Math.Min(radius, Math.Min(this.Width / 2, this.Height / 2));
+            var path = new GraphicsPath();
+            path.AddArc(0, 0, radius, radius, 180, 90);
+            path.AddArc(this.Width - radius, 0, radius, radius, 270, 90);
+            path.AddArc(this.Width - radius, this.Height - radius, radius, radius, 0, 90);
+            path.AddArc(0, this.Height - radius, radius, radius, 90, 90);
+            path.CloseAllFigures();
+            this.Region = new Region(path);
+        }
         private void timer1_Tick(object sender, EventArgs e)
         {
             txtDate.Text = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss ");
@@ -72,39 +89,160 @@ namespace Test
                 subMenu.Visible = false;
             }
         }
+
+        private void InitializeComputerPanel()
+        {
+            pnlComputers = new Panel();
+            pnlComputers.Location = new Point(250, 60); 
+            pnlComputers.Size = new Size(900, 600);
+            pnlComputers.AutoScroll = true;
+            pnlComputers.BackColor = Color.FromArgb(20, 20, 30); 
+            this.Controls.Add(pnlComputers);
+        }
+
+        private async Task LoadComputerMap()
+        {
+            try
+            {
+                pnlComputers.Controls.Clear();
+                var computers = await ApiClient.GetComputersAsync();
+
+                int buttonSize = 60;
+                int gap = 10;
+
+                foreach (var comp in computers)
+                {
+                    Button btnComp = new Button();
+                    btnComp.Text = comp.computer_name;
+                    btnComp.Size = new Size(buttonSize, buttonSize);
+
+                    // Tính vị trí dựa trên grid x, y (giống web)
+                    // Lưu ý: Web x=row, y=col hoặc ngược lại tùy db, cần test để khớp
+                    btnComp.Location = new Point(comp.y * (buttonSize + gap), comp.x * (buttonSize + gap));
+                    btnComp.Tag = comp; // Lưu đối tượng Computer vào button
+                    btnComp.FlatStyle = FlatStyle.Flat;
+                    btnComp.Click += Computer_Click;
+
+                    // Màu sắc theo trạng thái
+                    switch (comp.status)
+                    {
+                        case "trong":
+                            btnComp.BackColor = Color.Green;
+                            btnComp.ForeColor = Color.White;
+                            break;
+                        case "co nguoi":
+                            btnComp.BackColor = Color.Red;
+                            btnComp.ForeColor = Color.White;
+                            break;
+                        case "dat truoc":
+                            btnComp.BackColor = Color.Orange; // Màu vàng cam cho đặt trước
+                            btnComp.ForeColor = Color.White;
+                            break;
+                        default: // bao tri
+                            btnComp.BackColor = Color.Gray;
+                            btnComp.Enabled = false;
+                            break;
+                    }
+
+                    pnlComputers.Controls.Add(btnComp);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi tải sơ đồ máy: " + ex.Message);
+            }
+        }
+
+        private async void Computer_Click(object sender, EventArgs e)
+        {
+            Button btn = sender as Button;
+            Computer comp = btn.Tag as Computer;
+            int currentUserId = ApiClient.CurrentUser.user_id;
+
+            // Logic kiểm tra điều kiện vào máy
+            if (comp.status == "co nguoi")
+            {
+                MessageBox.Show("Máy này đang có người chơi!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (comp.status == "dat truoc" && comp.current_user_id != currentUserId)
+            {
+                MessageBox.Show("Máy này đã được người khác đặt trước!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            string msg = comp.status == "dat truoc"
+                ? $"Máy {comp.computer_name} đã được bạn đặt cọc.\nBạn muốn vào chơi và nhận hoàn tiền cọc không?"
+                : $"Bạn có muốn bắt đầu chơi tại máy {comp.computer_name}?";
+
+            if (MessageBox.Show(msg, "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            {
+                try
+                {
+                    var requestData = new { computerId = comp.computer_id, userId = currentUserId };
+
+                    // Gọi API start-session (API này trên server đã có logic hoàn tiền nếu status="dat truoc")
+                    var result = await ApiClient.PostAsync<ApiResponse>("/computers/start-session", requestData);
+
+                    MessageBox.Show(result.message, "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                    // Cập nhật lại số dư hiển thị nếu cần
+                    if (result.new_balance.HasValue)
+                    {
+                        ApiClient.CurrentUser.balance = result.new_balance.Value;
+                        // Cập nhật label hiển thị tiền (nếu có)
+                    }
+
+                    // Load lại map để cập nhật màu đỏ (online)
+                    await LoadComputerMap();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Lỗi vào máy: " + ex.Message);
+                }
+            }
+        }
+
         private void UpdateLoginState()
         {
-            lblInfor.Text = infor;
-            bool isLoggedIn = infor != "Bạn chưa đăng nhập!";
-            btnDangxuat.Enabled = isLoggedIn;
-            Logout.Enabled = isLoggedIn;
-
-            if (isLoggedIn)
+            if (ApiClient.CurrentUser != null)
             {
-                // Lấy username từ chuỗi infor
-                string username = infor.Split(':').Last().Trim();
-                //using (databaseDataContext db = new databaseDataContext())
-                //{
-                //    // Tìm người dùng trong cơ sở dữ liệu
-                //    Admin user = db.Admins.SingleOrDefault(p => p.Username == username);
-                //    if (user != null)
-                //    {
-                //        if (user.Role == false)
-                //        {
-                //            btnChucnang.Enabled = true;
-                //            btnDanhmuc.Enabled = true;
-                //        }
-                //        else
-                //        {
-                //            // Nhân viên
-                //            btnChucnang.Enabled = true;
-                //            btnTaikhoan.Visible = false;
-                //        }
-                //    }
-                //}
+                lblInfor.Text = $"Xin chào: {ApiClient.CurrentUser.user_name} | Số dư: {ApiClient.CurrentUser.balance:N0} đ";
+
+                // 2. Bật nút đăng xuất
+                btnDangxuat.Enabled = true;
+                Logout.Enabled = true;
+
+                int roleId = ApiClient.CurrentUser.role_id;
+
+                if (roleId == 1 || roleId == 2)
+                {
+                    // Là Admin hoặc Nhân viên -> Bật chức năng quản lý
+                    btnChucnang.Enabled = true;
+                    btnDanhmuc.Enabled = true;
+
+                    // Ví dụ: Ẩn nút Tài khoản nếu là Staff (giống logic cũ của bạn)
+                    if (roleId == 2)
+                    {
+                        // btnTaikhoan.Visible = false; 
+                    }
+                }
+                else
+                {
+                    // Là User thường (Khách) -> Tắt chức năng quản lý hệ thống
+                    btnChucnang.Enabled = false;
+                    btnDanhmuc.Enabled = false;
+                }
             }
             else
             {
+                // --- TRƯỜNG HỢP CHƯA ĐĂNG NHẬP ---
+                lblInfor.Text = "Bạn chưa đăng nhập!";
+
+                btnDangxuat.Enabled = false;
+                Logout.Enabled = false;
+
                 btnChucnang.Enabled = false;
                 btnDanhmuc.Enabled = false;
             }
@@ -124,16 +262,30 @@ namespace Test
             showSubMenu(subpanelChucnang);
         }
 
-        private void btnDangxuat_Click(object sender, EventArgs e)
+        private async void btnDangxuat_Click(object sender, EventArgs e)
         {
             DialogResult dialogResult = MessageBox.Show("Bạn có chắc chắn muốn đăng xuất?", "Thông báo", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
             if (dialogResult == DialogResult.Yes)
             {
-                infor = "Bạn chưa đăng nhập!";
-                UpdateLoginState();
+                try
+                {
+                    // Gọi API Logout để server set trạng thái về offline và máy về trống (nếu đang chơi)
+                    await ApiClient.PostAsync<object>("/auth/logout", new { });
+                }
+                catch
+                {
+                    // Kệ lỗi mạng khi logout, vẫn cho logout ở client
+                }
 
+                // Xóa thông tin local
+                ApiClient.Token = null;
+                ApiClient.CurrentUser = null;
+                infor = "Bạn chưa đăng nhập!";
+
+                // Chuyển về màn hình login (giữ nguyên code cũ của bạn đoạn này)
                 PanelMain.Controls.Clear();
+                if (pnlComputers != null) pnlComputers.Visible = false; // Ẩn map đi
 
                 frmLogin loginForm = new frmLogin
                 {
@@ -145,8 +297,10 @@ namespace Test
                 PanelMain.Controls.Add(loginForm);
                 loginForm.Show();
                 CenterFormInPanel(loginForm);
+                UpdateLoginState();
             }
         }
+
 
         // Xử lý sự kiện khi đăng nhập lại thành công
         private void LoginForm_LoginSuccess(object sender, string username)
@@ -173,39 +327,6 @@ namespace Test
             form.Location = new Point(x, y);
         }
 
-        // Đảm bảo khi kích thước PanelMain thay đổi, form vẫn ở giữa
-        //private void PanelMain_Resize(object sender, EventArgs e)
-        //{
-        //    foreach (Control control in PanelMain.Controls)
-        //    {
-        //        if (control is frmLogin)
-        //        {
-        //            CenterFormInPanel((Form)control);
-        //        }
-        //        else if (control is frmDangky)
-        //        {
-        //            CenterFormInPanel((Form)control);
-        //        }
-        //        else if (control is frmCard)
-        //        {
-        //            CenterFormInPanel((Form)control);
-        //        }
-        //    }
-        //}
-        //private void btnDangky_Click(object sender, EventArgs e)
-        //{
-        //    PanelMain.Controls.Clear();
-
-        //    frmDangky dangky = new frmDangky
-        //    {
-        //        TopLevel = false,
-        //        FormBorderStyle = FormBorderStyle.None,
-        //    };
-        //    PanelMain.Controls.Add(dangky);
-        //    dangky.Show();
-
-        //    CenterFormInPanel(dangky);
-        //}
 
         private void btnThoat_Click(object sender, EventArgs e)
         {
@@ -238,55 +359,11 @@ namespace Test
 
         }
 
-        //private void btnMenu_Click(object sender, EventArgs e)
-        //{
-        //    PanelMain.Controls.Clear();
-        //    var menuControl = new ThucDon();
-        //    menuControl.Dock = DockStyle.Fill;
-        //    PanelMain.Controls.Add(menuControl);
-        //    menuControl.BringToFront();
-        //}
-        //private void btnTaikhoan_Click(object sender, EventArgs e)
-        //{
-        //    PanelMain.Controls.Clear();
-        //    var taikhoan = new Taikhoan();
-        //    taikhoan.Dock = DockStyle.Fill;
-        //    PanelMain.Controls.Add(taikhoan);
-        //    taikhoan.BringToFront();
-        //}
 
         private void btnNhaphang_Click(object sender, EventArgs e)
         {
             PanelMain.Controls.Clear();
 
-            //frmAdd Nhap = new frmAdd
-            //{
-            //    TopLevel = false,
-            //    FormBorderStyle = FormBorderStyle.None,
-            //    Dock = DockStyle.Fill,
-            //};
-            //PanelMain.Controls.Add(Nhap);
-            //Nhap.Show();
-            //CenterFormInPanel(Nhap);
-
         }
-
-        //private void btnCard_Click(object sender, EventArgs e)
-        //{
-        //    PanelMain.Controls.Clear();
-        //    var CardControl = new Cards();
-        //    CardControl.Dock = DockStyle.Fill;
-        //    PanelMain.Controls.Add(CardControl);
-        //    CardControl.BringToFront();
-        //}
-
-        //private void btnHoadon_Click(object sender, EventArgs e)
-        //{
-        //    PanelMain.Controls.Clear();
-        //    var BillControl = new Bills();
-        //    BillControl.Dock = DockStyle.Fill;
-        //    PanelMain.Controls.Add(BillControl);
-        //    BillControl.BringToFront();
-        //}
     }
 }

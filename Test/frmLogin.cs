@@ -1,14 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
+using Test.DTOs;
 
 namespace Test
 {
@@ -16,7 +10,9 @@ namespace Test
     {
         public event EventHandler<string> LoginSuccess;
         public string UserRole { get; private set; }
+
         public static string UserInfo { get; private set; } = "Bạn chưa đăng nhập!";
+
         public frmLogin()
         {
             InitializeComponent();
@@ -24,23 +20,23 @@ namespace Test
 
         private void btnClose_Click(object sender, EventArgs e)
         {
-            this.Close();
+            Application.Exit();
         }
+
         private void frmLogin_Load(object sender, EventArgs e)
         {
             SetRoundedCorners(30);
         }
+
         private void SetRoundedCorners(int radius)
         {
             radius = Math.Min(radius, Math.Min(this.Width / 2, this.Height / 2));
-
             var path = new GraphicsPath();
             path.AddArc(0, 0, radius, radius, 180, 90);
             path.AddArc(this.Width - radius, 0, radius, radius, 270, 90);
             path.AddArc(this.Width - radius, this.Height - radius, radius, radius, 0, 90);
             path.AddArc(0, this.Height - radius, radius, radius, 90, 90);
             path.CloseAllFigures();
-
             this.Region = new Region(path);
         }
 
@@ -65,39 +61,56 @@ namespace Test
                 this.Location = mousePosition;
             }
         }
+
         private void frmLogin_MouseUp(object sender, MouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Left)
-            {
-                isMouseDown = false;
-            }
+            if (e.Button == MouseButtons.Left) isMouseDown = false;
         }
-        private void btnDangNhap_Click(object sender, EventArgs e)
+
+
+        private async void btnDangNhap_Click(object sender, EventArgs e)
         {
             string _username = txtUsername.Text;
             string _password = txtPassword.Text;
 
-            if (_username == "" && _password == "")
+            if (string.IsNullOrEmpty(_username) || string.IsNullOrEmpty(_password))
             {
-                MessageBox.Show("Vui lòng điền thông tin!", "Thông báo", MessageBoxButtons.OK);
-            }
-            else if (_username == "")
-            {
-                MessageBox.Show("Vui lòng nhập tên người dùng!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Vui lòng nhập đầy đủ thông tin!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-            else if (_password == "")
+
+            try
             {
-                MessageBox.Show("Vui lòng nhập mật khẩu!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
+                btnDangNhap.Enabled = false;
+                btnDangNhap.Text = "Đang xử lý...";
+
+                var loginData = new { user_name = _username, password = _password };
+
+                // Gọi API Login
+                // Biến result khai báo ở đây sẽ không bị trùng nữa
+                var result = await ApiClient.PostAsync<LoginResponse>("/auth/login", loginData);
+
+                // Lưu Token và User
+                ApiClient.Token = result.token;
+
+                // Bây giờ gán được vì cả 2 đều là UserDTO
+                ApiClient.CurrentUser = result.user;
+
+                UserInfo = $"Xin chào: {result.user.user_name}";
+
+                // Mở Form Main
+                frmMain mainForm = new frmMain(UserInfo);
+                this.Hide();
+                mainForm.Show();
             }
-            else
+            catch (Exception ex)
             {
-                frmMain mainForm = new frmMain();
-                this.Hide(); // Ẩn form đăng nhập
-                mainForm.Show(); // Hiện form chính
-                //lblerror.Visible = true;
-                //txtPassword.Focus();
+                MessageBox.Show($"Đăng nhập thất bại: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                btnDangNhap.Enabled = true;
+                btnDangNhap.Text = "Đăng nhập";
             }
         }
 
@@ -110,4 +123,3 @@ namespace Test
         }
     }
 }
-
