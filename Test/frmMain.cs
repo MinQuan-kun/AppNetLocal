@@ -168,16 +168,24 @@ namespace Test
             }
         }
 
-        // --- Các hàm phụ trợ giữ nguyên từ code cũ của bạn ---
         private void InitializeComputerPanel()
         {
-            if (pnlComputers != null) this.Controls.Remove(pnlComputers);
+            if (pnlComputers != null)
+            {
+                PanelMain.Controls.Remove(pnlComputers);
+                this.Controls.Remove(pnlComputers); 
+                pnlComputers.Dispose();
+            }
+
             pnlComputers = new Panel();
-            pnlComputers.Location = new Point(250, 60);
-            pnlComputers.Size = new Size(900, 600);
-            pnlComputers.AutoScroll = true;
+
+            pnlComputers.Dock = DockStyle.Fill;
+
+            pnlComputers.AutoScroll = true; 
             pnlComputers.BackColor = Color.FromArgb(30, 30, 40);
-            this.Controls.Add(pnlComputers);
+
+            PanelMain.Controls.Add(pnlComputers);
+
             pnlComputers.BringToFront();
         }
 
